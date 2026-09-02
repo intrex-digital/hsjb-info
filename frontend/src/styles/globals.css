@@ -1141,9 +1141,7 @@ section, .section {
 
 /* ===== Page Title ===== */
 .page-title {
-  --background-color: color-mix(in srgb, var(--default-color), transparent 96%);
   color: var(--default-color);
-  background-color: var(--background-color);
   padding: 20px 0;
   position: relative;
 }

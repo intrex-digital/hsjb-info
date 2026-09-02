@@ -360,15 +360,15 @@ router.post('/api/admin/resume', async (request, env) => {
 
   try {
     const body = await request.json() as any
-    const { type, title, organization, date_range, description, display_order } = body
+    const { type, title, organization, date_range, join_date, exit_date, description, display_order } = body
 
     if (!type || !title) {
       return Response.json({ success: false, message: 'Type and title required' }, { status: 400, headers: corsHeaders })
     }
 
     const result = await env.DB.prepare(
-      'INSERT INTO resume_entries (type, title, organization, date_range, description, display_order) VALUES (?, ?, ?, ?, ?, ?)'
-    ).bind(type, title, organization || '', date_range || '', description || '', display_order || 0).run()
+      'INSERT INTO resume_entries (type, title, organization, date_range, join_date, exit_date, description, display_order) VALUES (?, ?, ?, ?, ?, ?, ?, ?)'
+    ).bind(type, title, organization || '', date_range || '', join_date || '', exit_date || '', description || '', display_order || 0).run()
 
     return Response.json({ success: true, id: result.meta?.last_row_id }, { status: 201, headers: corsHeaders })
   } catch {
@@ -383,11 +383,11 @@ router.put('/api/admin/resume/:id', async (request, env) => {
   try {
     const { params } = request
     const body = await request.json() as any
-    const { type, title, organization, date_range, description, display_order } = body
+    const { type, title, organization, date_range, join_date, exit_date, description, display_order } = body
 
     await env.DB.prepare(
-      'UPDATE resume_entries SET type=?, title=?, organization=?, date_range=?, description=?, display_order=? WHERE id=?'
-    ).bind(type, title, organization || '', date_range || '', description || '', display_order || 0, params.id).run()
+      'UPDATE resume_entries SET type=?, title=?, organization=?, date_range=?, join_date=?, exit_date=?, description=?, display_order=? WHERE id=?'
+    ).bind(type, title, organization || '', date_range || '', join_date || '', exit_date || '', description || '', display_order || 0, params.id).run()
 
     return Response.json({ success: true }, { headers: corsHeaders })
   } catch {

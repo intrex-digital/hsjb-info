@@ -28,6 +28,8 @@ export interface ResumeEntry {
   title: string
   organization: string | null
   date_range: string | null
+  join_date: string | null
+  exit_date: string | null
   description: string | null
   display_order: number
 }

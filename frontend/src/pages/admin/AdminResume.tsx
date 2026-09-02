@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import { adminApi } from '../../services/api'
 import AdminLayout from '../../components/admin/AdminLayout'
+import RichTextEditor from '../../components/admin/RichTextEditor'
 import '../../styles/admin.css'
 import type { ResumeEntry } from '../../types'
 
@@ -13,6 +14,9 @@ export default function AdminResume() {
     type: 'experience',
     title: '',
     organization: '',
+    join_date: '',
+    exit_date: '',
+    is_current: false,
     date_range: '',
     description: '',
     display_order: 0,
@@ -48,11 +52,24 @@ export default function AdminResume() {
     }))
   }
 
+  const generateDateRange = (joinDate: string, exitDate: string, isCurrent: boolean) => {
+    const format = (d: string) => {
+      if (!d) return ''
+      const date = new Date(d)
+      return date.toLocaleDateString('en-US', { month: 'short', year: 'numeric' })
+    }
+    const join = format(joinDate)
+    const exit = isCurrent ? 'Present' : format(exitDate)
+    return join ? `${join} - ${exit}` : ''
+  }
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     try {
+      const date_range = generateDateRange(formData.join_date, formData.exit_date, formData.is_current)
       const submitData = {
         ...formData,
+        date_range,
         type: formData.type as 'experience' | 'education' | 'certification' | 'training',
       }
       if (editingId) {
@@ -73,6 +90,9 @@ export default function AdminResume() {
       type: activeTab,
       title: '',
       organization: '',
+      join_date: '',
+      exit_date: '',
+      is_current: false,
       date_range: '',
       description: '',
       display_order: 0,
@@ -86,6 +106,9 @@ export default function AdminResume() {
       type: entry.type,
       title: entry.title,
       organization: entry.organization || '',
+      join_date: entry.join_date || '',
+      exit_date: entry.exit_date || '',
+      is_current: !entry.exit_date && !!entry.join_date,
       date_range: entry.date_range || '',
       description: entry.description || '',
       display_order: entry.display_order,
@@ -167,15 +190,59 @@ export default function AdminResume() {
                 />
               </div>
               <div className="admin-form-group">
-                <label className="admin-form-label">Date Range</label>
+                <label className="admin-form-label">Join Date</label>
                 <input
-                  type="text"
-                  name="date_range"
-                  value={formData.date_range}
+                  type="date"
+                  name="join_date"
+                  value={formData.join_date}
                   onChange={handleChange}
-                  placeholder="e.g., 2022 - Present"
                   className="admin-form-input"
                 />
+              </div>
+              <div className="admin-form-group">
+                <label className="admin-form-label">Exit Date</label>
+                <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
+                  <input
+                    type="date"
+                    name="exit_date"
+                    value={formData.exit_date}
+                    onChange={handleChange}
+                    className="admin-form-input"
+                    disabled={formData.is_current}
+                    style={{ flex: 1, opacity: formData.is_current ? 0.5 : 1 }}
+                  />
+                  <label
+                    style={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '0.375rem',
+                      padding: '0.625rem 0.75rem',
+                      background: formData.is_current ? 'var(--admin-primary)' : 'var(--admin-border)',
+                      color: formData.is_current ? '#ffffff' : 'var(--admin-text)',
+                      borderRadius: '0.5rem',
+                      cursor: 'pointer',
+                      fontSize: '0.8rem',
+                      fontWeight: 500,
+                      whiteSpace: 'nowrap',
+                      transition: 'all 0.2s',
+                    }}
+                  >
+                    <input
+                      type="checkbox"
+                      checked={formData.is_current}
+                      onChange={(e) => {
+                        setFormData((prev) => ({
+                          ...prev,
+                          is_current: e.target.checked,
+                          exit_date: e.target.checked ? '' : prev.exit_date,
+                        }))
+                      }}
+                      style={{ width: '14px', height: '14px', display: 'none' }}
+                    />
+                    <i className={`bi ${formData.is_current ? 'bi-check-circle-fill' : 'bi-clock'}`}></i>
+                    Present
+                  </label>
+                </div>
               </div>
               <div className="admin-form-group">
                 <label className="admin-form-label">Display Order</label>
@@ -189,14 +256,11 @@ export default function AdminResume() {
               </div>
             </div>
             <div className="admin-form-group">
-              <label className="admin-form-label">Description (HTML)</label>
-              <textarea
-                name="description"
-                value={formData.description}
-                onChange={handleChange}
-                rows={5}
-                className="admin-form-textarea"
-                style={{ fontFamily: 'monospace', fontSize: '0.85rem' }}
+              <label className="admin-form-label">Description</label>
+              <RichTextEditor
+                content={formData.description}
+                onChange={(html) => setFormData((prev) => ({ ...prev, description: html }))}
+                placeholder="Add description for this entry..."
               />
             </div>
             <div style={{ display: 'flex', gap: '0.75rem', marginTop: '1rem' }}>

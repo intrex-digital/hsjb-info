@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { Link, useLocation, useNavigate } from 'react-router-dom'
 import { useAuth } from '../../contexts/AuthContext'
 
@@ -16,11 +16,17 @@ const menuItems = [
 ]
 
 export default function AdminLayout({ children }: AdminLayoutProps) {
-  const [sidebarCollapsed, setSidebarCollapsed] = useState(false)
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(() => {
+    return localStorage.getItem('admin_sidebar_collapsed') === 'true'
+  })
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
   const location = useLocation()
   const navigate = useNavigate()
-  const { user, logout } = useAuth()
+  const { logout } = useAuth()
+
+  useEffect(() => {
+    localStorage.setItem('admin_sidebar_collapsed', String(sidebarCollapsed))
+  }, [sidebarCollapsed])
 
   const handleLogout = () => {
     logout()
@@ -35,18 +41,14 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
   return (
     <div className="admin-wrapper">
       {/* Sidebar */}
-      <aside className={`admin-sidebar ${sidebarCollapsed ? 'collapsed' : ''} ${mobileMenuOpen ? 'mobile-open' : ''}`}>
+      <aside
+        className={`admin-sidebar ${sidebarCollapsed ? 'collapsed' : ''} ${mobileMenuOpen ? 'mobile-open' : ''}`}
+      >
         <div className="sidebar-header">
           <Link to="/admin" className="sidebar-brand">
             <i className="bi bi-person-gear"></i>
             {!sidebarCollapsed && <span>Admin Panel</span>}
           </Link>
-          <button
-            className="sidebar-toggle d-none d-lg-block"
-            onClick={() => setSidebarCollapsed(!sidebarCollapsed)}
-          >
-            <i className={`bi ${sidebarCollapsed ? 'bi-chevron-right' : 'bi-chevron-left'}`}></i>
-          </button>
         </div>
 
         <nav className="sidebar-nav">
@@ -57,6 +59,7 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
                   to={item.path}
                   className={isActive(item.path) ? 'active' : ''}
                   onClick={() => setMobileMenuOpen(false)}
+                  title={sidebarCollapsed ? item.label : ''}
                 >
                   <i className={`bi ${item.icon}`}></i>
                   {!sidebarCollapsed && <span>{item.label}</span>}
@@ -67,13 +70,13 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
         </nav>
 
         <div className="sidebar-footer">
-          <Link to="/" target="_blank" className="sidebar-link">
-            <i className="bi bi-box-arrow-up-right"></i>
-            {!sidebarCollapsed && <span>View Site</span>}
-          </Link>
-          <button onClick={handleLogout} className="sidebar-link logout">
-            <i className="bi bi-box-arrow-left"></i>
-            {!sidebarCollapsed && <span>Logout</span>}
+          <button
+            className="sidebar-link sidebar-collapse-btn"
+            onClick={() => setSidebarCollapsed(!sidebarCollapsed)}
+            title={sidebarCollapsed ? 'Expand' : 'Collapse'}
+          >
+            <i className={`bi ${sidebarCollapsed ? 'bi-chevron-right' : 'bi-chevron-left'}`}></i>
+            {!sidebarCollapsed && <span>Collapse</span>}
           </button>
         </div>
       </aside>
@@ -102,12 +105,14 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
             </h1>
           </div>
           <div className="header-right">
-            <div className="user-info">
-              <div className="user-avatar">
-                <i className="bi bi-person-circle"></i>
-              </div>
-              <span className="user-name">{user?.name || 'Admin'}</span>
-            </div>
+            <Link to="/" target="_blank" className="admin-btn admin-btn-secondary admin-btn-sm">
+              <i className="bi bi-box-arrow-up-right"></i>
+              View Site
+            </Link>
+            <button onClick={handleLogout} className="admin-btn admin-btn-secondary admin-btn-sm">
+              <i className="bi bi-box-arrow-left"></i>
+              Logout
+            </button>
           </div>
         </header>
 

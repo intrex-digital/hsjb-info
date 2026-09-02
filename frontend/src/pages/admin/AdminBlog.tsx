@@ -90,7 +90,7 @@ export default function AdminBlog() {
                 posts.map((post) => (
                   <tr key={post.id}>
                     <td>
-                      <div className="truncate" style={{ maxWidth: '300px' }}>
+                      <div>
                         <div style={{ fontWeight: 500 }}>{post.title}</div>
                         <div style={{ fontSize: '0.8rem', color: 'var(--admin-text-muted)' }}>/{post.slug}</div>
                       </div>

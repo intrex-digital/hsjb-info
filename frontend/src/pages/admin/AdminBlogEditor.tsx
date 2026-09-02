@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import { adminApi } from '../../services/api'
 import AdminLayout from '../../components/admin/AdminLayout'
+import RichTextEditor from '../../components/admin/RichTextEditor'
 import '../../styles/admin.css'
 
 export default function AdminBlogEditor() {
@@ -205,15 +206,11 @@ export default function AdminBlogEditor() {
               </div>
 
               <div className="admin-form-group" style={{ gridColumn: '1 / -1' }}>
-                <label className="admin-form-label">Content (HTML) *</label>
-                <textarea
-                  name="content"
-                  value={formData.content}
-                  onChange={handleChange}
-                  rows={20}
-                  className="admin-form-textarea"
-                  style={{ fontFamily: 'monospace', fontSize: '0.85rem' }}
-                  required
+                <label className="admin-form-label">Content *</label>
+                <RichTextEditor
+                  content={formData.content}
+                  onChange={(html) => setFormData((prev) => ({ ...prev, content: html }))}
+                  placeholder="Start writing your blog post..."
                 />
               </div>
             </div>
