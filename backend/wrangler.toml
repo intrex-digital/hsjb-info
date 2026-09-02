@@ -1,0 +1,17 @@
+name = "hsjb-info-api"
+main = "src/index.ts"
+compatibility_date = "2024-11-27"
+compatibility_flags = ["nodejs_compat"]
+
+[vars]
+ENVIRONMENT = "production"
+
+[[d1_databases]]
+binding = "DB"
+database_name = "hsjb-info-db"
+database_id = "6798bd79-fd95-4e45-a5f6-550e7da29946"
+
+[env.production]
+routes = [
+  { pattern = "api.hsjb.info", zone_name = "hsjb.info" }
+]
