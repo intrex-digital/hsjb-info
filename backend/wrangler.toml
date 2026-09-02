@@ -13,5 +13,5 @@ database_id = "6798bd79-fd95-4e45-a5f6-550e7da29946"
 
 [env.production]
 routes = [
-  { pattern = "api.hsjb.info", zone_name = "hsjb.info" }
+  { pattern = "api.hsjobaer.info", zone_name = "hsjobaer.info" }
 ]
